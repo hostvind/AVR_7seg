@@ -1,3 +1,5 @@
+#define DIGITS 3
+
 #define seg_0 0x3F
 #define seg_1 0x06
 #define seg_2 0x5B
@@ -18,4 +20,12 @@
 #define DIGIT2_PIN		PA6
 #define DIGIT3_PIN		PA7
 
+static char disp_select=1;
+static char disp_arr[3]={0,5,2};
 char nums[10] = {seg_0, seg_1, seg_2, seg_3, seg_4, seg_5, seg_6, seg_7, seg_8, seg_9};
+
+
+char dig_set (char* array);
+char dig_run (char MODE);
+char dig_sel (char selection);
+char dig_show (char digit);

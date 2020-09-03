@@ -24,7 +24,7 @@ static char disp_select=1;
 static char disp_arr[3]={0,5,2};
 char nums[10] = {seg_0, seg_1, seg_2, seg_3, seg_4, seg_5, seg_6, seg_7, seg_8, seg_9};
 
-
+char init_7seg	(void);
 char dig_set (char* array);
 char dig_run (char MODE);
 char dig_sel (char selection);

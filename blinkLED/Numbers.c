@@ -1,11 +1,18 @@
 #include <avr/io.h>
 #include "Numbers.h"
 
+char init_7seg	(void)
+{
+		DIGIT_DISP_DD = 0xFF;		
+		DIGIT_SEL_DD = 0b11110000;
+		return 0;
+}
+
 char dig_set(char* array)
 {
 	for (int i=0; i<DIGITS; i++)
 		disp_arr[i]=array[i];
-	return 0;
+	return 10;
 }
 
 char dig_run(char MODE)
@@ -33,39 +40,41 @@ char dig_run(char MODE)
 
 char dig_sel (char selection)
 {
+	char result=0;
 	switch (selection)
 	{
 		case 0:
-			DIGIT_SEL_PORT |= (1<<DIGIT1_PIN);
-			DIGIT_SEL_PORT |= (1<<DIGIT2_PIN);
-			DIGIT_SEL_PORT |= (1<<DIGIT3_PIN);
+			DIGIT_SEL_PORT &= ~(1<<DIGIT1_PIN);
+			DIGIT_SEL_PORT &= ~(1<<DIGIT2_PIN);
+			DIGIT_SEL_PORT &= ~(1<<DIGIT3_PIN);
 			break;
 		case 1:
-			DIGIT_SEL_PORT &= ~(1<<DIGIT1_PIN);
-			DIGIT_SEL_PORT |= (1<<DIGIT2_PIN);
-			DIGIT_SEL_PORT |= (1<<DIGIT3_PIN);
-			break;
-		case 2:
 			DIGIT_SEL_PORT |= (1<<DIGIT1_PIN);
 			DIGIT_SEL_PORT &= ~(1<<DIGIT2_PIN);
-			DIGIT_SEL_PORT |= (1<<DIGIT3_PIN);
+			DIGIT_SEL_PORT &= ~(1<<DIGIT3_PIN);
 			break;
-		case 3:
-			DIGIT_SEL_PORT |= (1<<DIGIT1_PIN);
+		case 2:
+			DIGIT_SEL_PORT &= ~(1<<DIGIT1_PIN);
 			DIGIT_SEL_PORT |= (1<<DIGIT2_PIN);
 			DIGIT_SEL_PORT &= ~(1<<DIGIT3_PIN);
 			break;
+		case 3:
+			DIGIT_SEL_PORT &= ~(1<<DIGIT1_PIN);
+			DIGIT_SEL_PORT &= ~(1<<DIGIT2_PIN);
+			DIGIT_SEL_PORT |= (1<<DIGIT3_PIN);
+			break;
 		default:
-			return 2;
+			result=2;
 			break;
 	}
-	return 0;
+	return result;
 }
 
 char dig_show (char digit)
 {
 	if (digit>9)
 		return 1;
-	DIGIT_DISP_PORT = nums[digit];
+	//DIGIT_DISP_PORT = 0xFF;
+	DIGIT_DISP_PORT = (nums[digit]);
 	return 0;
 }

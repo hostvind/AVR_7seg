@@ -9,7 +9,7 @@
 //11718 for 1 second
 //divided by 25 fps = 468
 //divided by 3 displays = 156
-#define T_TIM 155
+#define T_TIM 100
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
@@ -20,18 +20,21 @@
 unsigned int count_GL=65530;
 char count_ARR[3]={0,0,0};
 char call_MODE=0xFF;
+unsigned int count_tmp;
 
 ISR (TIMER1_COMPA_vect)    // Timer1 ISR
 {
-	call_MODE=0;
-	if (D_SW_1_PINS & (1<<D_SW_1_PIN))
-		call_MODE |= 0x02;
-	if (D_SW_2_PINS & (1<<D_SW_2_PIN))
-		call_MODE |= 0x04;
-	if (D_SW_3_PINS & (1<<D_SW_3_PIN))
-		call_MODE |= 0x08;
-	dig_run(call_MODE);
 	TCNT1 = 0;   // reset timer
+	call_MODE=0xFF;
+	//if (D_SW_1_PINS & (1<<D_SW_1_PIN))
+		//call_MODE |= 0x02;
+	//if (D_SW_2_PINS & (1<<D_SW_2_PIN))
+		//call_MODE |= 0x04;
+	//if (D_SW_3_PINS & (1<<D_SW_3_PIN))
+		//call_MODE |= 0x08;
+	dig_run(call_MODE);
+	butt_job();
+
 }
 
 int init_TIM (void)
@@ -51,31 +54,57 @@ int init_GPIO (void)
 	DDRC = 0x00;
 	DDRD = 0x00;
 	
+	PORTD = 0x00;
+	
 	//Blinking port
 	DDRB |= (1<<PB0);
 	
 	//BUTTONS
-	D_SW_1_PORT |= (1<<D_SW_1_PIN);
-	D_SW_2_PORT |= (1<<D_SW_2_PIN);
-	D_SW_3_PORT |= (1<<D_SW_3_PIN);
+	init_buttons();
 	
 	//Digit show port
-	DDRC = 0xFF;
-	
-	DDRA = 0b11110000;
+	init_7seg();
 	return 0;
 }
 
+char timer_mode(TIM_STATE MODE)
+{
+	if (MODE==timer_state)
+		timer_state=RUN;
+	else
+		timer_state=MODE;
+	return 0;
+}
 
 int main(void)
 {
     /* Replace with your application code */
 	init_GPIO();
 	init_TIM();
+	timer_state = RUN;
 	sei();
-	unsigned int count_tmp;
     while (1) 
     {
+		
+		switch (timer_state)
+		{
+			case STOP:
+				count_GL=0;
+				break;
+			case RUN:
+				count_GL++;
+				break;
+			case BACK:
+				count_GL--;
+				break;
+			case PAUSE:
+				count_GL=count_GL;
+				break;
+			default:
+				break;
+		}
+		
+		
 		count_tmp=count_GL;
 		for (int i=0;i<3;i++)
 		{
@@ -84,8 +113,9 @@ int main(void)
 		}
 		dig_set (count_ARR);
 		PORTB ^= (1<<PORTB0);
-		count_GL++;
-		_delay_ms(1000);
+		_delay_ms(500);
+		PORTB ^= (1<<PORTB0);
+		_delay_ms(500);
 		
     }
 }
